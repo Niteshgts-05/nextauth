@@ -30,15 +30,19 @@ export async function POST(request: NextRequest) {
       output.password = bcrypt.hashSync(output.password, salt);
       await User.create(output);
       return NextResponse.json(
-        { status: 200, message: "User created successfully" },
+        {
+          status: 200,
+          message:
+            "Account created successfully! Please login to your Account!",
+        },
         { status: 200 }
       );
     }
   } catch (error) {
     if (error instanceof errors.E_VALIDATION_ERROR) {
       return NextResponse.json(
-        { status: 200, errors: error.messages },
-        { status: 400 }
+        { status: 400, errors: error.messages },
+        { status: 200 }
       );
     }
   }

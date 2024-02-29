@@ -2,18 +2,43 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import axios from 'axios';
+import {useRouter} from 'next/navigation'
 
 export default function Register() {
-
+  
+    const router = useRouter()
     const [authState, setAuthState] = useState({
         name:"",
         email:"",
         password:"",
-        password_confirm:""
+        password_confirmation:""
     })
+    const [loading, setLoading] = useState<Boolean>(false)
 
-    const submitForm = () =>{
+    const [errors, setErrors] = useState<registerErrorType>({});
+
+
+    const submitForm = async() =>{
         console.log("authState", authState)
+        setLoading(true)
+       await axios.post('/api/auth/register', authState)
+        .then(function (res) {
+          const response = res.data;
+          setLoading(false)
+
+          if(response.status == 200){
+            console.log("res.status ==>", res.status);
+            router.push(`/login?message= ${response.message}`)
+
+          }else if(response?.status === 400){
+            setErrors(response?.errors)
+          }
+        })
+        .catch(function (error) {
+          setLoading(false)
+          console.log(error);
+        });
     }
 
   return (
@@ -31,7 +56,7 @@ export default function Register() {
           <div className="relative">
             <div className="w-full max-w-xl xl:mx-auto xl:w-full xl:max-w-xl xl:pr-24">
               <h3 className="text-4xl font-bold text-white">
-                Now you dont have to rely on your designer to create a new page
+                Now you don't have to rely on your designer to create a new page
               </h3>
               <ul className="mt-10 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
                 <li className="flex items-center space-x-3">
@@ -133,6 +158,8 @@ export default function Register() {
                       placeholder="Name"
                       onChange={(e)=>setAuthState({...authState, name:e.target.value})}
                     ></input>
+                  <span className='text-red-500 font-bold'>{errors?.name}</span>
+
                   </div>
                 </div>
                 <div>
@@ -147,6 +174,8 @@ export default function Register() {
                       placeholder="Email"
                       onChange={(e)=>setAuthState({...authState, email:e.target.value})}
                     ></input>
+                  <span className='text-red-500 font-bold'>{errors?.email}</span>
+
                   </div>
                 </div>
                 <div>
@@ -163,6 +192,8 @@ export default function Register() {
                       placeholder="Password"
                       onChange={(e)=>setAuthState({...authState, password:e.target.value})}
                     ></input>
+                  <span className='text-red-500 font-bold'>{errors?.password}</span>
+
                   </div>
                 </div>
                 <div>
@@ -177,17 +208,19 @@ export default function Register() {
                       className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                       type="password"
                       placeholder="Confirm Password"
-                      onChange={(e)=>setAuthState({...authState, password_confirm:e.target.value})}
+                      onChange={(e)=>setAuthState({...authState, password_confirmation:e.target.value})}
                     ></input>
+                  <span className='text-red-500 font-bold'>{errors?.password}</span>
+
                   </div>
                 </div>
                 <div>
                   <button
                     type="button"
-                    className="inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
+                    className={`inline-flex w-full items-center justify-center rounded-md px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80 ${loading ? "bg-gray" : "bg-black"}`}
                   onClick={submitForm}
                   >
-                   Register </button>
+                   {loading? "Process" : "Register"} </button>
                 </div>
               </div>
             </form>

@@ -16,10 +16,6 @@ const userSchema = new Schema(
       required: [true, "Password is required!"],
       type: Schema.Types.String,
     },
-    test: {
-      required: [false],
-      type: Schema.Types.String,
-    },
   },
   { timestamps: true }
 );
