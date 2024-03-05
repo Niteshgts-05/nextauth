@@ -2,7 +2,9 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import axios from 'axios';
-import {useSearchParams, useRouter} from 'next/navigation'
+import {useSearchParams, useRouter, redirect} from 'next/navigation'
+import { signIn } from 'next-auth/react';
+
 
 export default function Login() {
   const params = useSearchParams()
@@ -18,16 +20,19 @@ export default function Login() {
 
 
     const submitForm = async() =>{
-        console.log("authState", authState)
         setLoading(true)
        await axios.post('/api/auth/login', authState)
         .then(function (res) {
           setLoading(false)
           const response = res.data;
-console.log("This is a res ===>", response)
           if(response.status == 200){
             console.log("res.status ==>", res.status);
-            router.push('/')
+            signIn('credentials',{
+              email:authState.email,
+              password:authState.password,
+              callbackUrl:"/dashboard",
+              redirect:true
+            })
           }else if(response?.status === 400){
             setErrors(response?.errors)
           }
@@ -37,6 +42,7 @@ console.log("This is a res ===>", response)
           console.log(error);
         });
     }
+    
   return (
     <section>
       <div className="grid grid-cols-1 lg:grid-cols-2 h-screen">
